@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  postgres:
+    env_file: .env
+    container_name: test-bot-postgres
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: ${DB_NAME:-postgres}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+    volumes:
+      - postgres:/data/postgres
+    ports:
+      - '5431:5432'
+    networks:
+      - postgres
+    restart: unless-stopped
+networks:
+  postgres:
+    driver: bridge
+volumes:
+  postgres:
