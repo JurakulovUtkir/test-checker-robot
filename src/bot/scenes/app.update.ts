@@ -25,7 +25,11 @@ export class AppUpdate {
         if (user.role == 'admin') {
             await ctx.scene.enter(scenes.ADMIN_MENU);
         } else {
-            await ctx.scene.enter(scenes.CHOOSE_CATEGORY);
+            if (user.full_name) {
+                await ctx.scene.enter(scenes.CHOOSE_CATEGORY);
+            } else {
+                await ctx.scene.enter(scenes.NAME_SCENE);
+            }
         }
     }
 
@@ -44,10 +48,6 @@ export class AppUpdate {
                     const user = this.repository.create({
                         chat_id: ctx.chat.id.toString(),
                         role: 'user',
-                        full_name:
-                            ctx.from.first_name + ' ' + ctx.from.last_name
-                                ? ctx.from.last_name
-                                : '',
                         status: 'member',
                     });
 

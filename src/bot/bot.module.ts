@@ -15,6 +15,7 @@ import { Result } from 'src/results/entities/results.entity';
 import { TestListScene } from './scenes/admin-side/test-list.scene';
 import { AddTestScene } from './scenes/admin-side/add-test.scene';
 import { ChooseCategoryScene } from './scenes/user-side/choose-category.scene';
+import { NameScene } from './scenes/user-side/full_name.scene';
 
 dotenv.config();
 
@@ -31,6 +32,7 @@ dotenv.config();
     providers: [
         AppUpdate,
         ChooseCategoryScene,
+        NameScene,
         /**
          * admin-site
          */

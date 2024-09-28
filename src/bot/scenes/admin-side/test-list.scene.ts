@@ -134,6 +134,16 @@ export class TestListScene {
         tempFile.removeCallback();
     }
 
+    @Action('edit_test')
+    async edit_test(ctx: Context) {
+        await ctx.answerCbQuery('You are now editing a test');
+    }
+
+    @Action('stats')
+    async stats(ctx: Context) {
+        await ctx.answerCbQuery('upcoming');
+    }
+
     @On('callback_query')
     async handle_callback_query(ctx: Context) {
         ctx.session.selected_test_id = +ctx.callbackQuery['data'];

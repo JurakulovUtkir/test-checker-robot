@@ -144,13 +144,6 @@ export class ChooseCategoryScene {
     async check_test(ctx: Context) {
         try {
             const text: string = ctx.message['text'];
-            const is_in_formatted = isNumberAsteriskFollowedBy30Chars(text);
-            if (!is_in_formatted) {
-                await ctx.reply(
-                    `Iltimos, 2*aabbccddd... (agar test kodi 2 bo'ladigan bo'lsa) formatida qaytadan kiring`,
-                );
-                return ctx.scene.reenter();
-            }
 
             const data = text.split('*');
             const test_number = +data[0];
@@ -162,7 +155,14 @@ export class ChooseCategoryScene {
 
             if (!test) {
                 await ctx.reply(`Test  topilmadi.`);
-                await ctx.scene.reenter();
+                return ctx.scene.reenter();
+            }
+
+            if (user_test_keys.length != test.answers.length) {
+                await ctx.reply(
+                    `Siz yuborgan ID: ${test.id} li testda ${test.answers.length} ta javob bo'lishi kerak lekin siz ${user_test_keys.length} ta javob yubordiz`,
+                );
+                return ctx.scene.reenter();
             }
 
             // check test is active or not
@@ -190,6 +190,7 @@ Ball : ${ball} ball
                 await ctx.reply('Successfully saved!');
             } else {
                 await ctx.reply('Test yopilgan.');
+                return ctx.scene.reenter();
             }
         } catch (error) {
             this.logger.log(error.message);
