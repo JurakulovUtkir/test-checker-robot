@@ -31,7 +31,6 @@ export class AddTestScene {
         const default_keys = ['a', 'b', 'c', 'd', 'e'];
         // check text should be 30 characters and only in default keys
         if (
-            test_answers.length === 30 &&
             test_answers.split('').every((char) => default_keys.includes(char))
         ) {
             // save test_answers to database
@@ -59,7 +58,7 @@ Test javoblari: ${test_answers}
             await ctx.scene.enter(scenes.ADMIN_MENU);
         } else {
             await ctx.reply(
-                "Test nomi 30 ta belgidan iborat bo'lishi shart, va vaqt qatori shu kelgan belgidan iborat bo'lishi shart!",
+                'Test da faqat a,b,c,d,e kalitlaridan foydalanish mumkin',
             );
             await ctx.scene.reenter();
         }
