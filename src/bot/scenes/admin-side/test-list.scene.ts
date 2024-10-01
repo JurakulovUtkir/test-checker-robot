@@ -90,7 +90,6 @@ export class TestListScene {
         // Fetch all results for the selected test
         const results: Result[] = await this.results_repository.find({
             where: { test_id: selected_test_id },
-            relations: ['test'],
         });
 
         // Create a new workbook and a worksheet
@@ -111,7 +110,7 @@ export class TestListScene {
                 id: result.id,
                 user_chat_id: result.user_chat_id,
                 result: result.result,
-                created_at: result.created_at,
+                created_at: result.created_at.toLocaleString(),
             });
         });
 
@@ -140,10 +139,23 @@ export class TestListScene {
         await ctx.answerCbQuery('You are now editing a test');
     }
 
+    @Action('delete_test')
+    async delete_test(ctx: Context) {
+        await ctx.answerCbQuery(
+            'You have deleted a test with ID: ' + ctx.session.selected_test_id,
+        );
+        await this.tests_repository.delete({
+            id: ctx.session.selected_test_id,
+        });
+        await ctx.deleteMessage();
+        ctx.scene.enter(scenes.TEST_LIST);
+    }
+
     @Action('stats')
     async stats(ctx: Context) {
         if (ctx.session.selected_test_stats.length === 0) {
-            return ctx.reply('No results found for the selected test.');
+            ctx.reply('No results found for the selected test.');
+            return;
         }
 
         // Formatting the results for the response
