@@ -22,6 +22,7 @@ export class AppUpdate {
     @Start()
     async start(ctx: Context) {
         const user = await this.getUser(ctx);
+        ctx.session.user_full_name = user.full_name;
         if (user.role == 'admin') {
             await ctx.scene.enter(scenes.ADMIN_MENU);
         } else {

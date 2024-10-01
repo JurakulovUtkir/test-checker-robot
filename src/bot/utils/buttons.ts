@@ -29,10 +29,9 @@ export const PLUS_ONE = '➕ Yangi';
 
 // updated  words that are needed there:
 export const ADMIN_BUTTONS = {
-    ADD_TEST: 'Add Test',
-    TEST_STATS: 'Test Stats',
-    STOP_TEST: 'Stop Test',
-    ACTIVATE_TEST: 'ACTIVATE Test',
-    TEST_LIST: 'Test List',
-    EXCEL_FILE: 'Excel File',
+    ADD_TEST: '🆕 Add Test',
+    TEST_STATS: '📊 Test Stats',
+    STOP_TEST: '⚠️ Stop Test',
+    TEST_LIST: '🗂️ Test List',
+    EXCEL_FILE: '💾 Excel File',
 };

@@ -31,7 +31,7 @@ export class ChooseCategoryScene {
         @InjectRepository(Test)
         private readonly tests_repository: Repository<Test>,
         @InjectRepository(Result)
-        private readonly reults_repository: Repository<Result>,
+        private readonly results_repository: Repository<Result>,
     ) {}
 
     protected logger = new Logger(ChooseCategoryScene.name);
@@ -143,57 +143,70 @@ export class ChooseCategoryScene {
     @On('text')
     async check_test(ctx: Context) {
         try {
-            const text: string = ctx.message['text'];
+            const text = ctx.message['text'];
 
-            const data = text.split('*');
-            const test_number = +data[0];
-            const user_test_keys = data[1];
+            // Extract test number and user test keys
+            const [testNumber, userTestKeys] = text.split('*');
 
-            const test = await this.tests_repository.findOneBy({
-                id: test_number,
-            });
+            // Convert test number to an integer
+            const testId = Number(testNumber);
+
+            // Fetch the test by ID
+            const test = await this.tests_repository.findOneBy({ id: testId });
 
             if (!test) {
-                await ctx.reply(`Test  topilmadi.`);
+                await ctx.reply(`Test topilmadi.`);
                 return ctx.scene.reenter();
             }
 
-            if (user_test_keys.length != test.answers.length) {
+            // Check if the user sent the correct number of answers
+            if (userTestKeys.length !== test.answers.length) {
                 await ctx.reply(
-                    `Siz yuborgan ID: ${test.id} li testda ${test.answers.length} ta javob bo'lishi kerak lekin siz ${user_test_keys.length} ta javob yubordiz`,
+                    `Siz yuborgan ID: ${test.id} li testda ${test.answers.length} ta javob bo'lishi kerak, lekin siz ${userTestKeys.length} ta javob yubordiz.`,
                 );
                 return ctx.scene.reenter();
             }
 
-            // check test is active or not
-            if (test.is_active) {
-                // we have to check test give results to user and save to the database
-
-                const ball = await check_test_keys(
-                    user_test_keys,
-                    test.answers,
-                );
-
-                await this.reults_repository.save({
-                    test,
-                    user_chat_id: ctx.chat.id.toString(),
-                    result: ball,
-                    created_at: new Date(),
-                });
-
-                ctx.reply(`
-Test ID : ${test.id}
-Test nomi : ${test.name} 
-Ball : ${ball} ball               
-                `);
-
-                await ctx.reply('Successfully saved!');
-            } else {
+            // Check if the test is active
+            if (!test.is_active) {
                 await ctx.reply('Test yopilgan.');
                 return ctx.scene.reenter();
             }
+
+            // Check if the user has already completed the test
+            const userChatId = ctx.chat.id.toString();
+            const userResult = await this.results_repository.findOne({
+                where: { test_id: test.id, user_chat_id: userChatId },
+            });
+
+            if (userResult) {
+                await ctx.reply('Siz bu testni avval tekshirgansiz.');
+                return ctx.scene.reenter();
+            }
+
+            // Evaluate the user's answers and calculate the score
+            const score = await check_test_keys(userTestKeys, test.answers);
+
+            // Save the result to the database
+            await this.results_repository.save({
+                test,
+                user_chat_id: userChatId,
+                result: score,
+                created_at: new Date(),
+                user: ctx.session.user_full_name,
+            });
+
+            // Respond with the test result
+            await ctx.reply(`
+    📋 Test ID : ${test.id}
+    📜 Test nomi : ${test.name} 
+    🎯 Ball : ${score} ball               
+            `);
+
+            await ctx.reply('Successfully saved!');
+            await ctx.scene.reenter();
         } catch (error) {
-            this.logger.log(error.message);
+            this.logger.error(`Error in check_test: ${error.message}`);
         }
     }
 }

@@ -11,6 +11,7 @@ export interface Context extends BaseContext {
 }
 
 interface SessionData extends Scenes.SceneSession<MySceneSession> {
+    user_full_name: string;
     /**
      * o'zimizga keraklilari
      */

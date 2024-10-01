@@ -21,6 +21,7 @@ export class NameScene {
     @On('text')
     async name(ctx: Context) {
         const name = ctx.message['text'];
+        ctx.session.user_full_name = name;
 
         // validate name name should have at least 5 characters
         if (name.length < 5) {

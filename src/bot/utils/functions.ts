@@ -94,16 +94,16 @@ export function test_functionalities(test: Test) {
 
     const status_show = 'Status' + (test.is_active ? '✅' : '❌');
 
-    return Markup.inlineKeyboard(
+    return Markup.inlineKeyboard([
         [
-            Markup.button.callback('Get Excel', 'excel'),
-            Markup.button.callback('Get stats', 'stats'),
+            Markup.button.callback(ADMIN_BUTTONS.EXCEL_FILE, 'excel'),
+            Markup.button.callback(ADMIN_BUTTONS.TEST_STATS, 'stats'),
+        ],
+        [
             Markup.button.callback(status_show, 'status'),
             Markup.button.callback('Edit test', 'edit_test'),
-            Markup.button.callback('Back', 'back'),
         ],
-        {
-            columns: 2,
-        },
-    );
+        [Markup.button.callback('🧹🪣 Delete test', 'delete_test')],
+        [Markup.button.callback('🔙 Back', 'back')],
+    ]);
 }

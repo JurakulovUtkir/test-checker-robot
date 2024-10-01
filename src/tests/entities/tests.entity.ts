@@ -1,3 +1,4 @@
+import { Result } from 'src/results/entities/results.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
@@ -15,9 +16,6 @@ export class Test {
 
     @Column({ type: 'varchar', length: 100 })
     owner_chat_id: string;
-
-    @Column({ type: 'text', nullable: true })
-    description: string;
 
     @Column({ default: true })
     is_active: boolean;

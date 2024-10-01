@@ -36,7 +36,7 @@ export class TestListScene {
     async add_test(ctx: Context) {
         await ctx.deleteMessage();
         await ctx.answerCbQuery('You are now adding a test');
-        ctx.scene.enter(scenes.ADD_TEST);
+        ctx.scene.enter(scenes.TEST_NAME);
     }
 
     @Action('back')
@@ -50,6 +50,7 @@ export class TestListScene {
             },
         });
         await ctx.editMessageReplyMarkup(show_tests(all_tests).reply_markup);
+        await ctx.editMessageText('Here are all your tests:');
     }
 
     @Action('status')
@@ -88,7 +89,7 @@ export class TestListScene {
 
         // Fetch all results for the selected test
         const results: Result[] = await this.results_repository.find({
-            where: { test: { id: selected_test_id } },
+            where: { test_id: selected_test_id },
             relations: ['test'],
         });
 
@@ -141,7 +142,21 @@ export class TestListScene {
 
     @Action('stats')
     async stats(ctx: Context) {
-        await ctx.answerCbQuery('upcoming');
+        if (ctx.session.selected_test_stats.length === 0) {
+            return ctx.reply('No results found for the selected test.');
+        }
+
+        // Formatting the results for the response
+        const formattedResults = ctx.session.selected_test_stats
+            .map(
+                (result, index) =>
+                    `${index + 1}. ${result.user} : ${result.result} ball\n`,
+            )
+            .join('');
+
+        const text = `Test Results:\n\n${formattedResults}`;
+
+        await ctx.reply(text);
     }
 
     @On('callback_query')
@@ -153,10 +168,18 @@ export class TestListScene {
 
         ctx.session.selected_test_stats = await this.results_repository.find({
             where: {
-                test: test,
+                test_id: test.id,
+            },
+            order: {
+                result: 'DESC',
             },
         });
 
+        await ctx.editMessageText(`
+🗒 Test nomi: ${test.name}
+🔢 Testlar soni: ${test.answers.length} ta
+‼️  Test kodi: ${test.id}
+            `);
         await ctx.editMessageReplyMarkup(
             test_functionalities(test).reply_markup,
         );

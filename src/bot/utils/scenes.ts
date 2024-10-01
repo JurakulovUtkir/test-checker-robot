@@ -17,4 +17,5 @@ export enum scenes {
     TEST_LIST = 'TEST_LIST',
     ADD_TEST = 'ADD_TEST',
     NAME_SCENE = 'NAME_SCENE',
+    TEST_NAME = 'TEST_NAME',
 }

@@ -35,25 +35,40 @@ export class AddTestScene {
         ) {
             // save test_answers to database
 
-            const test = await this.tests_repository.save({
-                owner_chat_id: ctx.chat.id.toString(),
-                is_active: true,
-                answers: test_answers,
-                checked_count: 0,
-                created_at: new Date(),
+            const test = await this.tests_repository.findOneBy({
+                id: ctx.session.selected_test_id,
             });
 
             await this.tests_repository.update(
-                { id: test.id },
-                { name: 'Test ' + test.id },
+                { id: ctx.session.selected_test_id },
+                { answers: test_answers },
             );
             await ctx.reply('new test is added!!!');
 
-            await ctx.reply(`
-                Test ID: ${test.id}
-Test nomi: Test ${test.id}
-Test javoblari: ${test_answers}
-                `);
+            await ctx.replyWithHTML(
+                `
+✅️ Test ishlanishga tayyor
+🗒 Test nomi: ${test.name}
+🔢 Testlar soni: ${test_answers.length} ta
+‼️  Test kodi: ${test.id}
+
+Test javoblaringizni quyidagi botga jo'nating:
+
+👉 @Piimaonlinetestbot
+👉 @Piimaonlinetestbot
+👉 @Piimaonlinetestbot
+
+📌 Testda qatnashuvchilar quyidagi ko'rinishda javob yuborishlari mumkin:
+Test kodini kiriting va *(yulduzcha) belgisini qo'ying.
+To'liq 20 ta javobni ham kiriting.  
+
+Namuna:
+152*abcdab... (20 ta)   yoki
+152*1a2b3c4d5a6b... (20 ta)
+    
+♻️Test ishlanishga tayyor!!!
+                `,
+            );
 
             await ctx.scene.enter(scenes.ADMIN_MENU);
         } else {
