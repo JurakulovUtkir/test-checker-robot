@@ -189,7 +189,7 @@ export class ChooseCategoryScene {
 
             // Save the result to the database
             await this.results_repository.save({
-                test,
+                test_id: test.id,
                 user_chat_id: userChatId,
                 result: score,
                 created_at: new Date(),
