@@ -22,9 +22,6 @@ export class TestListScene {
     @SceneEnter()
     async enter(ctx: Context) {
         const all_tests = await this.tests_repository.find({
-            where: {
-                owner_chat_id: ctx.chat.id.toString(),
-            },
             order: {
                 id: 'ASC',
             },

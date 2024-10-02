@@ -143,7 +143,7 @@ export class ChooseCategoryScene {
     @On('text')
     async check_test(ctx: Context) {
         try {
-            const text = ctx.message['text'];
+            const text = (ctx.message['text'] + '').toLowerCase();
 
             // Extract test number and user test keys
             const [testNumber, userTestKeys] = text.split('*');
