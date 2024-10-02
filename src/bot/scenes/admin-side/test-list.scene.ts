@@ -88,8 +88,8 @@ export class TestListScene {
         const results: Result[] = await this.results_repository.find({
             where: { test_id: selected_test_id },
             order: {
-                created_at: 'ASC',
                 result: 'DESC',
+                created_at: 'ASC',
             },
         });
 
