@@ -87,6 +87,10 @@ export class TestListScene {
         // Fetch all results for the selected test
         const results: Result[] = await this.results_repository.find({
             where: { test_id: selected_test_id },
+            order: {
+                created_at: 'ASC',
+                result: 'DESC',
+            },
         });
 
         // Create a new workbook and a worksheet
@@ -97,6 +101,7 @@ export class TestListScene {
         worksheet.columns = [
             { header: 'ID', key: 'id', width: 10 },
             { header: 'User Chat ID', key: 'user_chat_id', width: 20 },
+            { header: 'User', key: 'user', width: 40 },
             { header: 'Result', key: 'result', width: 10 },
             { header: 'Created At', key: 'created_at', width: 40 },
         ];
@@ -106,6 +111,7 @@ export class TestListScene {
             worksheet.addRow({
                 id: result.id,
                 user_chat_id: result.user_chat_id,
+                user: result.user,
                 result: result.result,
                 created_at: result.created_at.toLocaleString(),
             });
@@ -181,7 +187,9 @@ export class TestListScene {
             },
             order: {
                 result: 'DESC',
+                created_at: 'ASC',
             },
+            take: 40,
         });
 
         await ctx.editMessageText(`
