@@ -17,6 +17,7 @@ import { AddTestScene } from './scenes/admin-side/add-test.scene';
 import { ChooseCategoryScene } from './scenes/user-side/choose-category.scene';
 import { NameScene } from './scenes/user-side/full_name.scene';
 import { TestNameScene } from './scenes/admin-side/test-name.scene';
+import { StatsScene } from './scenes/user-side/stats.scene';
 
 dotenv.config();
 
@@ -34,6 +35,7 @@ dotenv.config();
         AppUpdate,
         ChooseCategoryScene,
         NameScene,
+        StatsScene,
         /**
          * admin-site
          */

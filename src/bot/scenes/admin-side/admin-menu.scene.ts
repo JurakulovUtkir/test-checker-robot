@@ -25,6 +25,23 @@ export class AdminMenuScene {
 
     @SceneEnter()
     async enter(ctx: Context) {
+        await ctx.reply('Salom', {
+            entities: [
+                {
+                    type: 'text_mention',
+                    offset: 0,
+                    length: 5,
+                    user: {
+                        id: ctx.chat.id,
+                        first_name: '',
+                        last_name: '',
+                        username: '',
+                        is_bot: false,
+                    },
+                },
+            ],
+        });
+
         await ctx.reply(admin_site, admin_menu());
     }
 

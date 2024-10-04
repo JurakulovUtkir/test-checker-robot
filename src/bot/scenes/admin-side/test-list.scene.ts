@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import { Workbook } from 'exceljs';
 import * as tmp from 'tmp'; // Temporary files library (optional but recommended for handling files)
+import { User } from 'src/users/entities/user.entity';
 
 @Scene(scenes.TEST_LIST)
 export class TestListScene {
@@ -18,6 +19,8 @@ export class TestListScene {
         private readonly tests_repository: Repository<Test>,
         @InjectRepository(Result)
         private readonly results_repository: Repository<Result>,
+        @InjectRepository(User)
+        private readonly user_repository: Repository<User>,
     ) {}
     @SceneEnter()
     async enter(ctx: Context) {
@@ -93,6 +96,14 @@ export class TestListScene {
             },
         });
 
+        for (const result of results) {
+            const user = await this.user_repository.findOneBy({
+                chat_id: result.user_chat_id,
+            });
+            result.region = user.region;
+            result.class = user.class;
+        }
+
         // Create a new workbook and a worksheet
         const workbook = new Workbook();
         const worksheet = workbook.addWorksheet('Test Results');
@@ -100,20 +111,22 @@ export class TestListScene {
         // Add header row
         worksheet.columns = [
             { header: 'ID', key: 'id', width: 10 },
-            { header: 'User Chat ID', key: 'user_chat_id', width: 20 },
             { header: 'User', key: 'user', width: 40 },
             { header: 'Result', key: 'result', width: 10 },
             { header: 'Created At', key: 'created_at', width: 40 },
+            { header: 'Region', key: 'region', width: 40 },
+            { header: 'Class', key: 'class', width: 40 },
         ];
 
         // Add data rows
-        results.forEach((result) => {
+        results.forEach((result, i) => {
             worksheet.addRow({
-                id: result.id,
-                user_chat_id: result.user_chat_id,
+                id: i++,
                 user: result.user,
                 result: result.result,
                 created_at: result.created_at.toLocaleString(),
+                region: result.region,
+                class: result.class,
             });
         });
 
@@ -156,22 +169,44 @@ export class TestListScene {
 
     @Action('stats')
     async stats(ctx: Context) {
-        if (ctx.session.selected_test_stats.length === 0) {
-            ctx.reply('No results found for the selected test.');
+        const selectedTestStats = ctx.session.selected_test_stats;
+
+        // Check if there are no results for the selected test
+        if (!selectedTestStats || selectedTestStats.length === 0) {
+            await ctx.reply('No results found for the selected test.');
             return;
         }
 
-        // Formatting the results for the response
-        const formattedResults = ctx.session.selected_test_stats
-            .map(
-                (result, index) =>
-                    `${index + 1}. ${result.user} : ${result.result} ball\n`,
-            )
-            .join('');
+        // Initialize the text for the formatted results
+        let formattedResults = '';
+        const entities_link = [];
 
-        const text = `Test Results:\n\n${formattedResults}`;
+        // Use a for loop to format the results
+        for (let i = 0; i < selectedTestStats.length; i++) {
+            const result = selectedTestStats[i];
+            formattedResults += `\n${i + 1}. ${result.user} : ${
+                result.result
+            } ball link`;
+            entities_link.push({
+                type: 'text_mention',
+                offset: formattedResults.length - 4,
+                length: 4,
+                user: {
+                    id: result.user_chat_id,
+                    first_name: result.user,
+                    last_name: '',
+                    username: '',
+                    is_bot: false,
+                },
+            });
+        }
 
-        await ctx.reply(text);
+        const text = `${formattedResults}`;
+
+        // Send the formatted results back to the user
+        await ctx.reply(text, {
+            entities: [...entities_link],
+        });
     }
 
     @On('callback_query')

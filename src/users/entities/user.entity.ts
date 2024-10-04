@@ -16,4 +16,10 @@ export class User {
 
     @Column({ type: 'varchar' })
     status: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    region: string;
+
+    @Column({ type: 'varchar', nullable: true })
+    class: string;
 }

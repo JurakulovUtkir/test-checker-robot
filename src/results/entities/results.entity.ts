@@ -24,4 +24,7 @@ export class Result {
 
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
+
+    region: string;
+    class: string;
 }

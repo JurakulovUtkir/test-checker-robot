@@ -25,3 +25,34 @@ export const send_news = "Bildirishnoma sifatida xabar jo'natish";
 // for testing purposes
 export const example_test_answers = `Test kalitlaringizni quyidagi ko'rinishda yuboring(Eslatma: test soni 30 tadan ko'p ham kam ham bo'lmasligi kerak!) 
 Masalan :  aaabbbcccaaabbbcccaaabbbcccddd`;
+
+export const regions = [
+    'Andijon',
+    'Buxoro',
+    "Farg'ona",
+    'Jizzax',
+    'Xorazm',
+    'Namangan',
+    'Navoiy',
+    'Qashqadaryo',
+    "Qoraqalpog'iston",
+    'Samarqand',
+    'Sirdaryo',
+    'Surxondaryo',
+    'Toshkent viloyati',
+    'Toshkent shahri',
+];
+
+export const classes = [
+    '1-sinf',
+    '2-sinf',
+    '3-sinf',
+    '4-sinf',
+    '5-sinf',
+    '6-sinf',
+    '7-sinf',
+    '8-sinf',
+    '9-sinf',
+    '10-sinf',
+    '11-sinf',
+];

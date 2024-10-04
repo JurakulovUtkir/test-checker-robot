@@ -107,3 +107,16 @@ export function test_functionalities(test: Test) {
         [Markup.button.callback('🔙 Back', 'back')],
     ]);
 }
+
+export function make_buttons(data: string[]) {
+    // create buttons from data
+    const buttons = [];
+
+    data.forEach((item) => {
+        buttons.push(Markup.button.text(item));
+    });
+
+    // return the keyboard with inline buttons
+
+    return Markup.keyboard(buttons, { columns: 2 });
+}

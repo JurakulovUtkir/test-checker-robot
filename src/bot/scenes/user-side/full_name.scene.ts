@@ -3,6 +3,7 @@ import { On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { Context } from 'src/bot/context/context';
 import { scenes } from 'src/bot/utils/scenes';
 import { User } from 'src/users/entities/user.entity';
+import { Markup } from 'telegraf';
 import { Repository } from 'typeorm';
 
 @Scene(scenes.NAME_SCENE)
@@ -14,7 +15,10 @@ export class NameScene {
 
     @SceneEnter()
     async enter(ctx: Context) {
-        await ctx.reply(`Iltimos to'liq ismizningizni kiriting...`);
+        await ctx.reply(
+            `Iltimos to'liq ismizningizni kiriting...`,
+            Markup.removeKeyboard(),
+        );
     }
 
     // we have to catch names and set to themselves
@@ -42,6 +46,7 @@ export class NameScene {
         // change scene to CHOOSE_CATEGORY
 
         await ctx.reply(`Xush kelibsiz, ${name}!`);
+
         await ctx.scene.enter(scenes.CHOOSE_CATEGORY);
     }
 }

@@ -26,10 +26,25 @@ export class AppUpdate {
         if (user.role == 'admin') {
             await ctx.scene.enter(scenes.ADMIN_MENU);
         } else {
-            if (user.full_name) {
+            if (user.region) {
                 await ctx.scene.enter(scenes.CHOOSE_CATEGORY);
             } else {
-                await ctx.scene.enter(scenes.NAME_SCENE);
+                await ctx.scene.enter(scenes.STATS);
+            }
+        }
+    }
+
+    @On('message')
+    async start_message(ctx: Context) {
+        const user = await this.getUser(ctx);
+        ctx.session.user_full_name = user.full_name;
+        if (user.role == 'admin') {
+            await ctx.scene.enter(scenes.ADMIN_MENU);
+        } else {
+            if (user.region) {
+                await ctx.scene.enter(scenes.CHOOSE_CATEGORY);
+            } else {
+                await ctx.scene.enter(scenes.STATS);
             }
         }
     }
