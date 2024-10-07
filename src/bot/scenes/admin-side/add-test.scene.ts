@@ -64,7 +64,6 @@ To'liq 20 ta javobni ham kiriting.
 
 Namuna:
 152*abcdab... (20 ta)   yoki
-152*1a2b3c4d5a6b... (20 ta)
     
 ♻️Test ishlanishga tayyor!!!
                 `,

@@ -179,34 +179,19 @@ export class TestListScene {
 
         // Initialize the text for the formatted results
         let formattedResults = '';
-        const entities_link = [];
 
         // Use a for loop to format the results
         for (let i = 0; i < selectedTestStats.length; i++) {
             const result = selectedTestStats[i];
             formattedResults += `\n${i + 1}. ${result.user} : ${
                 result.result
-            } ball link`;
-            entities_link.push({
-                type: 'text_mention',
-                offset: formattedResults.length - 4,
-                length: 4,
-                user: {
-                    id: result.user_chat_id,
-                    first_name: result.user,
-                    last_name: '',
-                    username: '',
-                    is_bot: false,
-                },
-            });
+            } ball`;
         }
 
         const text = `${formattedResults}`;
 
         // Send the formatted results back to the user
-        await ctx.reply(text, {
-            entities: [...entities_link],
-        });
+        await ctx.reply(text);
     }
 
     @On('callback_query')
