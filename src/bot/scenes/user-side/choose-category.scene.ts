@@ -207,6 +207,7 @@ export class ChooseCategoryScene {
             await ctx.scene.reenter();
         } catch (error) {
             this.logger.error(`Error in check_test: ${error.message}`);
+            await ctx.scene.reenter();
         }
     }
 }

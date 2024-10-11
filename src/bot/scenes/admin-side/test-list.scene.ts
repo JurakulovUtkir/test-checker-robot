@@ -8,6 +8,9 @@ import { Result } from 'src/results/entities/results.entity';
 import { Test } from 'src/tests/entities/tests.entity';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
+import * as PDFDocument from 'pdfkit';
+import * as pdfMake from 'pdfkit';
+
 import { Workbook } from 'exceljs';
 import * as tmp from 'tmp'; // Temporary files library (optional but recommended for handling files)
 import { User } from 'src/users/entities/user.entity';
@@ -177,21 +180,67 @@ export class TestListScene {
             return;
         }
 
-        // Initialize the text for the formatted results
-        let formattedResults = '';
+        // Create a temporary file path
+        const tempFile = tmp.fileSync({ postfix: '.pdf' });
+        const filePath = tempFile.name;
 
-        // Use a for loop to format the results
-        for (let i = 0; i < selectedTestStats.length; i++) {
-            const result = selectedTestStats[i];
-            formattedResults += `\n${i + 1}. ${result.user} : ${
-                result.result
-            } ball`;
-        }
+        // Create a PDF document definition
+        const docDefinition = {
+            content: [
+                {
+                    text: 'Test Natijalari',
+                    style: 'header',
+                    alignment: 'center',
+                },
+                {
+                    table: {
+                        widths: [30, '*', 100], // Widths for index, user, and score columns
+                        body: [
+                            ['No.', 'User', 'Score'], // Table Header
+                            ...selectedTestStats.map((result, index) => [
+                                index + 1,
+                                result.user,
+                                `${result.result} ball`,
+                            ]),
+                        ],
+                    },
+                    layout: 'lightHorizontalLines', // Optional: to add light horizontal lines
+                },
+            ],
+            styles: {
+                header: {
+                    fontSize: 16,
+                    bold: true,
+                    margin: [0, 20, 0, 20],
+                },
+            },
+        };
 
-        const text = `${formattedResults}`;
+        // Create a PDF with pdfMake
+        const printer = new pdfMake({
+            Roboto: {
+                normal: 'node_modules/pdfmake/build/vfs_fonts.js',
+                bold: 'node_modules/pdfmake/build/vfs_fonts.js',
+                italics: 'node_modules/pdfmake/build/vfs_fonts.js',
+                bolditalics: 'node_modules/pdfmake/build/vfs_fonts.js',
+            },
+        });
 
-        // Send the formatted results back to the user
-        await ctx.reply(text);
+        // Generate the PDF and write it to the file
+        const pdfDoc = printer.createPdfKitDocument(docDefinition);
+        pdfDoc.pipe(fs.createWriteStream(filePath));
+        pdfDoc.end();
+
+        // Wait for the PDF to finish generating and then send it
+        pdfDoc.on('finish', async () => {
+            await ctx.replyWithDocument({
+                source: filePath,
+                filename: 'test_stats.pdf',
+            });
+
+            // Cleanup: remove the temporary file after sending
+            tempFile.removeCallback();
+        });
     }
 
     @On('callback_query')
@@ -209,7 +258,6 @@ export class TestListScene {
                 result: 'DESC',
                 created_at: 'ASC',
             },
-            take: 40,
         });
 
         await ctx.editMessageText(`
