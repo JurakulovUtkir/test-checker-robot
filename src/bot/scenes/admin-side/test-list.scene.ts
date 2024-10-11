@@ -172,75 +172,71 @@ export class TestListScene {
 
     @Action('stats')
     async stats(ctx: Context) {
-        const selectedTestStats = ctx.session.selected_test_stats;
-
-        // Check if there are no results for the selected test
-        if (!selectedTestStats || selectedTestStats.length === 0) {
-            await ctx.reply('No results found for the selected test.');
-            return;
-        }
-
-        // Create a temporary file path
-        const tempFile = tmp.fileSync({ postfix: '.pdf' });
-        const filePath = tempFile.name;
-
-        // Create a PDF document definition
-        const docDefinition = {
-            content: [
-                {
-                    text: 'Test Natijalari',
-                    style: 'header',
-                    alignment: 'center',
-                },
-                {
-                    table: {
-                        widths: [30, '*', 100], // Widths for index, user, and score columns
-                        body: [
-                            ['No.', 'User', 'Score'], // Table Header
-                            ...selectedTestStats.map((result, index) => [
-                                index + 1,
-                                result.user,
-                                `${result.result} ball`,
-                            ]),
-                        ],
-                    },
-                    layout: 'lightHorizontalLines', // Optional: to add light horizontal lines
-                },
-            ],
-            styles: {
-                header: {
-                    fontSize: 16,
-                    bold: true,
-                    margin: [0, 20, 0, 20],
-                },
-            },
-        };
-
-        // Create a PDF with pdfMake
-        const printer = new pdfMake({
-            Roboto: {
-                normal: 'node_modules/pdfmake/build/vfs_fonts.js',
-                bold: 'node_modules/pdfmake/build/vfs_fonts.js',
-                italics: 'node_modules/pdfmake/build/vfs_fonts.js',
-                bolditalics: 'node_modules/pdfmake/build/vfs_fonts.js',
-            },
-        });
-
-        // Generate the PDF and write it to the file
-        const pdfDoc = printer.createPdfKitDocument(docDefinition);
-        pdfDoc.pipe(fs.createWriteStream(filePath));
-        pdfDoc.end();
-
-        // Wait for the PDF to finish generating and then send it
-        pdfDoc.on('finish', async () => {
-            await ctx.replyWithDocument({
-                source: filePath,
-                filename: 'test_stats.pdf',
-            });
-
-            // Cleanup: remove the temporary file after sending
-            tempFile.removeCallback();
-        });
+        await ctx.answerCbQuery(
+            'Your test statistics have been calculated and upcoming',
+        );
+        // const selectedTestStats = ctx.session.selected_test_stats;
+        // // Check if there are no results for the selected test
+        // if (!selectedTestStats || selectedTestStats.length === 0) {
+        //     await ctx.reply('No results found for the selected test.');
+        //     return;
+        // }
+        // // Create a temporary file path
+        // const tempFile = tmp.fileSync({ postfix: '.pdf' });
+        // const filePath = tempFile.name;
+        // // Create a PDF document definition
+        // const docDefinition = {
+        //     content: [
+        //         {
+        //             text: 'Test Natijalari',
+        //             style: 'header',
+        //             alignment: 'center',
+        //         },
+        //         {
+        //             table: {
+        //                 widths: [30, '*', 100], // Widths for index, user, and score columns
+        //                 body: [
+        //                     ['No.', 'User', 'Score'], // Table Header
+        //                     ...selectedTestStats.map((result, index) => [
+        //                         index + 1,
+        //                         result.user,
+        //                         `${result.result} ball`,
+        //                     ]),
+        //                 ],
+        //             },
+        //             layout: 'lightHorizontalLines', // Optional: to add light horizontal lines
+        //         },
+        //     ],
+        //     styles: {
+        //         header: {
+        //             fontSize: 16,
+        //             bold: true,
+        //             margin: [0, 20, 0, 20],
+        //         },
+        //     },
+        // };
+        // // Create a PDF with pdfMake
+        // const printer = new pdfMake({
+        //     Roboto: {
+        //         normal: 'node_modules/pdfmake/build/vfs_fonts.js',
+        //         bold: 'node_modules/pdfmake/build/vfs_fonts.js',
+        //         italics: 'node_modules/pdfmake/build/vfs_fonts.js',
+        //         bolditalics: 'node_modules/pdfmake/build/vfs_fonts.js',
+        //     },
+        // });
+        // // Generate the PDF and write it to the file
+        // const pdfDoc = printer.createPdfKitDocument(docDefinition);
+        // pdfDoc.pipe(fs.createWriteStream(filePath));
+        // pdfDoc.end();
+        // // Wait for the PDF to finish generating and then send it
+        // pdfDoc.on('finish', async () => {
+        //     await ctx.replyWithDocument({
+        //         source: filePath,
+        //         filename: 'test_stats.pdf',
+        //     });
+        //     // Cleanup: remove the temporary file after sending
+        //     tempFile.removeCallback();
+        // });
     }
 
     @On('callback_query')
