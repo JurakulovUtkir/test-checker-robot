@@ -9,8 +9,7 @@ import { Test } from 'src/tests/entities/tests.entity';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as PDFDocument from 'pdfkit';
-import * as pdfMake from 'pdfkit';
-
+import * as path from 'path';
 import { Workbook } from 'exceljs';
 import * as tmp from 'tmp'; // Temporary files library (optional but recommended for handling files)
 import { User } from 'src/users/entities/user.entity';
@@ -124,7 +123,7 @@ export class TestListScene {
         // Add data rows
         results.forEach((result, i) => {
             worksheet.addRow({
-                id: i++,
+                id: i + 1,
                 user: result.user,
                 result: result.result,
                 created_at: result.created_at.toLocaleString(),
@@ -171,74 +170,75 @@ export class TestListScene {
     }
 
     @Action('stats')
-    async stats(ctx: Context) {
-        await ctx.answerCbQuery(
-            'Your test statistics have been calculated and upcoming',
-        );
-        // const selectedTestStats = ctx.session.selected_test_stats;
-        // // Check if there are no results for the selected test
-        // if (!selectedTestStats || selectedTestStats.length === 0) {
-        //     await ctx.reply('No results found for the selected test.');
-        //     return;
-        // }
-        // // Create a temporary file path
-        // const tempFile = tmp.fileSync({ postfix: '.pdf' });
-        // const filePath = tempFile.name;
-        // // Create a PDF document definition
-        // const docDefinition = {
-        //     content: [
-        //         {
-        //             text: 'Test Natijalari',
-        //             style: 'header',
-        //             alignment: 'center',
-        //         },
-        //         {
-        //             table: {
-        //                 widths: [30, '*', 100], // Widths for index, user, and score columns
-        //                 body: [
-        //                     ['No.', 'User', 'Score'], // Table Header
-        //                     ...selectedTestStats.map((result, index) => [
-        //                         index + 1,
-        //                         result.user,
-        //                         `${result.result} ball`,
-        //                     ]),
-        //                 ],
-        //             },
-        //             layout: 'lightHorizontalLines', // Optional: to add light horizontal lines
-        //         },
-        //     ],
-        //     styles: {
-        //         header: {
-        //             fontSize: 16,
-        //             bold: true,
-        //             margin: [0, 20, 0, 20],
-        //         },
-        //     },
-        // };
-        // // Create a PDF with pdfMake
-        // const printer = new pdfMake({
-        //     Roboto: {
-        //         normal: 'node_modules/pdfmake/build/vfs_fonts.js',
-        //         bold: 'node_modules/pdfmake/build/vfs_fonts.js',
-        //         italics: 'node_modules/pdfmake/build/vfs_fonts.js',
-        //         bolditalics: 'node_modules/pdfmake/build/vfs_fonts.js',
-        //     },
-        // });
-        // // Generate the PDF and write it to the file
-        // const pdfDoc = printer.createPdfKitDocument(docDefinition);
-        // pdfDoc.pipe(fs.createWriteStream(filePath));
-        // pdfDoc.end();
-        // // Wait for the PDF to finish generating and then send it
-        // pdfDoc.on('finish', async () => {
-        //     await ctx.replyWithDocument({
-        //         source: filePath,
-        //         filename: 'test_stats.pdf',
-        //     });
-        //     // Cleanup: remove the temporary file after sending
-        //     tempFile.removeCallback();
-        // });
-    }
+    async handleTestStats(ctx) {
+        await ctx.answerCbQuery('Generating your test stats as a PDF...');
 
+        const data: Result[] = ctx.session.selected_test_stats; // Ensure the data is defined
+
+        for (const result of data) {
+            const user = await this.user_repository.findOneBy({
+                chat_id: result.user_chat_id,
+            });
+            result.region = user.region;
+            result.class = user.class;
+        }
+
+        if (!data || data.length === 0) {
+            await ctx.reply('No test results available.');
+            return;
+        }
+
+        // Create a temporary file for the PDF
+        const tempFile = tmp.fileSync({ postfix: '.pdf' });
+        const filePath = tempFile.name;
+
+        // Create a new PDF document
+        const doc = new PDFDocument();
+        const writeStream = fs.createWriteStream(filePath);
+        doc.pipe(writeStream);
+
+        // Add title to the PDF
+        doc.fontSize(25)
+            .text('Test Statistics', { align: 'center' })
+            .moveDown();
+
+        // Draw a line under the headers
+        doc.moveDown(0.5)
+            .lineWidth(0.5)
+            .moveTo(50, doc.y)
+            .lineTo(550, doc.y)
+            .stroke();
+
+        // Add each result in the table format, aligned in separate columns
+        data.forEach((result: Result, index: number) => {
+            doc.fontSize(12).text(
+                (index + 1).toString() +
+                    '. ' +
+                    `${result.user}  - ${result.result} (${result.class})`,
+                50,
+                doc.y,
+            ); // ID column
+        });
+
+        // Finalize the PDF
+        doc.end();
+
+        // Wait until the PDF is created, then send it
+        writeStream.on('finish', async () => {
+            await ctx.replyWithDocument(
+                {
+                    source: fs.createReadStream(filePath),
+                    filename: 'test_stats.pdf',
+                },
+                {
+                    caption: 'Here are the test statistics in PDF format.',
+                },
+            );
+
+            // Clean up the temporary file
+            tempFile.removeCallback();
+        });
+    }
     @On('callback_query')
     async handle_callback_query(ctx: Context) {
         ctx.session.selected_test_id = +ctx.callbackQuery['data'];
