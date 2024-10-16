@@ -1,4 +1,5 @@
 import { Result } from 'src/results/entities/results.entity';
+import { Test } from 'src/tests/entities/tests.entity';
 import { Scenes, Context as BaseContext } from 'telegraf';
 import { Update } from 'telegraf/typings/core/types/typegram';
 
@@ -17,6 +18,8 @@ interface SessionData extends Scenes.SceneSession<MySceneSession> {
      */
     selected_test_id: number;
     selected_test_stats: Result[];
+    test_page: number;
+    tests: Test[];
 }
 
 interface MySceneSession extends Scenes.SceneSessionData {

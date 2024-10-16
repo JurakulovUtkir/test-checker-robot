@@ -34,4 +34,6 @@ export const ADMIN_BUTTONS = {
     STOP_TEST: '⚠️ Stop Test',
     TEST_LIST: '🗂️ Test List',
     EXCEL_FILE: '💾 Excel File',
+    next_page: '➡️',
+    last_page: '⬅️',
 };

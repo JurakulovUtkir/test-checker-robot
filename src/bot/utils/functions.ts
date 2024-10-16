@@ -120,3 +120,37 @@ export function make_buttons(data: string[]) {
 
     return Markup.keyboard(buttons, { columns: 2 });
 }
+
+export function tests_page(page: number, tasks: Test[]) {
+    const pageSize = 8;
+    const start = page * pageSize;
+    const end = start + pageSize;
+
+    // Slice the tasks array to get the tests for the current page
+    const paginatedTests = tasks.slice(start, end);
+
+    // Initialize buttons with the first "PLUS_ONE" button
+    const buttons = [[Markup.button.callback(PLUS_ONE, PLUS_ONE)]];
+
+    // Add buttons for each test
+    paginatedTests.forEach((test) => {
+        buttons.push([Markup.button.callback(test.name, test.id.toString())]);
+    });
+
+    // Add navigation buttons if necessary
+    const navigationButtons = [
+        ...(page > 0
+            ? [Markup.button.callback(ADMIN_BUTTONS.last_page, 'last')]
+            : []),
+        ...(tasks.length > end
+            ? [Markup.button.callback(ADMIN_BUTTONS.next_page, 'next')]
+            : []),
+    ];
+
+    if (navigationButtons.length > 0) {
+        buttons.push(navigationButtons);
+    }
+
+    // Return the inline keyboard markup
+    return Markup.inlineKeyboard(buttons);
+}

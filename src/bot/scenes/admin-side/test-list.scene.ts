@@ -2,7 +2,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Action, On, Scene, SceneEnter } from 'nestjs-telegraf';
 import { Context } from 'src/bot/context/context';
 import { PLUS_ONE } from 'src/bot/utils/buttons';
-import { show_tests, test_functionalities } from 'src/bot/utils/functions';
+import {
+    show_tests,
+    test_functionalities,
+    tests_page,
+} from 'src/bot/utils/functions';
 import { scenes } from 'src/bot/utils/scenes';
 import { Result } from 'src/results/entities/results.entity';
 import { Test } from 'src/tests/entities/tests.entity';
@@ -28,10 +32,15 @@ export class TestListScene {
     async enter(ctx: Context) {
         const all_tests = await this.tests_repository.find({
             order: {
-                id: 'ASC',
+                id: 'DESC',
             },
         });
-        await ctx.reply('Here are all your tests:', show_tests(all_tests));
+        ctx.session.tests = all_tests;
+        ctx.session.test_page = 0;
+        await ctx.reply(
+            'Here are all your tests:',
+            tests_page(ctx.session.test_page, ctx.session.tests),
+        );
     }
 
     @Action(PLUS_ONE)
@@ -39,6 +48,22 @@ export class TestListScene {
         await ctx.deleteMessage();
         await ctx.answerCbQuery('You are now adding a test');
         ctx.scene.enter(scenes.TEST_NAME);
+    }
+
+    @Action('next')
+    async next_page(ctx: Context) {
+        ctx.session.test_page += 1;
+        ctx.editMessageReplyMarkup(
+            tests_page(ctx.session.test_page, ctx.session.tests).reply_markup,
+        );
+    }
+
+    @Action('last')
+    async last_page(ctx: Context) {
+        ctx.session.test_page -= 1;
+        ctx.editMessageReplyMarkup(
+            tests_page(ctx.session.test_page, ctx.session.tests).reply_markup,
+        );
     }
 
     @Action('back')
