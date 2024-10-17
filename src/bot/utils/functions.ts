@@ -122,7 +122,7 @@ export function make_buttons(data: string[]) {
 }
 
 export function tests_page(page: number, tasks: Test[]) {
-    const pageSize = 8;
+    const pageSize = 5;
     const start = page * pageSize;
     const end = start + pageSize;
 
