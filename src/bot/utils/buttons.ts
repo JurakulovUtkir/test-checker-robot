@@ -17,6 +17,8 @@ export const NO_USTAMA = '🚫 ustama foiz va sertifikatlar mavjud emas';
 
 export const BACK_TO_MENU = '⬅️ Bosh menu';
 
+export const ONLY_CLOSE_TESTS = "⚠️ Faqat yopiq testlar"
+
 export const STATISTICS = '📊 Bot statistikasi';
 
 export const NEWS = '🔊 Xabar yuborish';
@@ -36,4 +38,10 @@ export const ADMIN_BUTTONS = {
     EXCEL_FILE: '💾 Excel File',
     next_page: '➡️',
     last_page: '⬅️',
+};
+
+export const USER_BUTTONS = {
+    TEST_RESULTS: '📈 Results',
+    EDIT_NAME: '⚙️ Name',
+    CHECK_TEST: '✨ Check Test',
 };

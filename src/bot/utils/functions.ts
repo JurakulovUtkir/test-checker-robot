@@ -4,8 +4,10 @@ import {
     BACK_TO_MENU,
     CHANNELS,
     CHECKOUT_SUBSCRIPTION,
+    ONLY_CLOSE_TESTS,
     PLUS_ONE,
     STATISTICS,
+    USER_BUTTONS,
 } from './buttons';
 import { Channel } from 'src/channels/entities/channel.entity';
 import { Test } from 'src/tests/entities/tests.entity';
@@ -62,6 +64,21 @@ export function channels_for_adding(channels: Channel[]) {
 
 export function back_menu() {
     return Markup.keyboard([Markup.button.text(BACK_TO_MENU)], {
+        columns: 2,
+    })
+        .oneTime()
+        .resize()
+        .selective();
+}
+
+
+export function remove_keyboard() {
+    return Markup.removeKeyboard()
+}
+
+
+export function add_test_menu(){
+    return Markup.keyboard([Markup.button.text(BACK_TO_MENU),Markup.button.text(ONLY_CLOSE_TESTS)], {
         columns: 2,
     })
         .oneTime()
@@ -153,4 +170,20 @@ export function tests_page(page: number, tasks: Test[]) {
 
     // Return the inline keyboard markup
     return Markup.inlineKeyboard(buttons);
+}
+
+export function users_menu() {
+    return Markup.keyboard(
+        [
+            Markup.button.text(USER_BUTTONS.TEST_RESULTS),
+            Markup.button.text(USER_BUTTONS.EDIT_NAME),
+            Markup.button.text(USER_BUTTONS.CHECK_TEST),
+        ],
+        {
+            columns: 2,
+        },
+    )
+        .oneTime()
+        .resize()
+        .selective();
 }

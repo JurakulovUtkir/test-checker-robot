@@ -82,7 +82,8 @@ export class ChooseCategoryScene {
     @Use()
     async checking(@Ctx() ctx: Context, @Next() next: NextFunction) {
         try {
-            if (await this.check_subscriptions(ctx)) {
+            //await this.check_subscriptions(ctx)
+            if (true) {
                 // this.bot.telegram.sendChatAction(ctx.chat.id, 'typing');
                 next(ctx);
             } else {
@@ -145,6 +146,11 @@ export class ChooseCategoryScene {
         try {
             const text = (ctx.message['text'] + '').toLowerCase();
 
+            // check if the user sends /start message to the bot and leave the scene to user menu scene
+            if (text == '/start') {
+                await ctx.scene.enter(scenes.USER_MENU);
+            }
+
             // Extract test number and user test keys
             const [testNumber, userTestKeys] = text.split('*');
 
@@ -194,7 +200,17 @@ export class ChooseCategoryScene {
                 result: score,
                 created_at: new Date(),
                 user: ctx.session.user_full_name,
+                answers: userTestKeys,
             });
+
+            await this.tests_repository.update(
+                {
+                    id: test.id,
+                },
+                {
+                    checked_count: test.checked_count++,
+                },
+            );
 
             // Respond with the test result
             await ctx.reply(`
@@ -204,7 +220,7 @@ export class ChooseCategoryScene {
             `);
 
             await ctx.reply('Successfully saved!');
-            await ctx.scene.reenter();
+            await ctx.scene.enter(scenes.USER_MENU);
         } catch (error) {
             this.logger.error(`Error in check_test: ${error.message}`);
             await ctx.scene.reenter();

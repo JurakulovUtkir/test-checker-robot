@@ -17,6 +17,7 @@ import * as path from 'path';
 import { Workbook } from 'exceljs';
 import * as tmp from 'tmp'; // Temporary files library (optional but recommended for handling files)
 import { User } from 'src/users/entities/user.entity';
+import { TestAnswers } from 'src/bot/utils/interfaces';
 
 @Scene(scenes.TEST_LIST)
 export class TestListScene {
@@ -30,11 +31,13 @@ export class TestListScene {
     ) {}
     @SceneEnter()
     async enter(ctx: Context) {
+
         const all_tests = await this.tests_repository.find({
             order: {
                 id: 'DESC',
             },
         });
+
         ctx.session.tests = all_tests;
         ctx.session.test_page = 0;
         await ctx.reply(
@@ -266,28 +269,36 @@ export class TestListScene {
     }
     @On('callback_query')
     async handle_callback_query(ctx: Context) {
-        ctx.session.selected_test_id = +ctx.callbackQuery['data'];
-        const test = await this.tests_repository.findOneBy({
-            id: ctx.session.selected_test_id,
-        });
-
-        ctx.session.selected_test_stats = await this.results_repository.find({
-            where: {
-                test_id: test.id,
-            },
-            order: {
-                result: 'DESC',
-                created_at: 'ASC',
-            },
-        });
-
-        await ctx.editMessageText(`
-🗒 Test nomi: ${test.name}
-🔢 Testlar soni: ${test.answers.length} ta
-‼️  Test kodi: ${test.id}
-            `);
-        await ctx.editMessageReplyMarkup(
-            test_functionalities(test).reply_markup,
-        );
+       try {
+         ctx.session.selected_test_id = +ctx.callbackQuery['data'];
+         const test = await this.tests_repository.findOneBy({
+             id: ctx.session.selected_test_id,
+         });
+ 
+         ctx.session.selected_test_stats = await this.results_repository.find({
+             where: {
+                 test_id: test.id,
+             },
+             order: {
+                 result: 'DESC',
+                 created_at: 'ASC',
+             },
+         });
+ 
+         // const test_answers_count = JSON.parse(test.answers).length
+ 
+         await ctx.editMessageText(`
+ 🗒 Test nomi: ${test.name}
+ 📝 javoblar soni: ${JSON.parse(test.answers).length}
+ ‼️  Test kodi: ${test.id}
+             `);
+         await ctx.editMessageReplyMarkup(
+             test_functionalities(test).reply_markup,
+         );
+       } catch (error) {
+        console.log(error);
+         ctx.scene.leave()
+        
+       }
     }
 }

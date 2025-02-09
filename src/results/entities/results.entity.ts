@@ -22,6 +22,9 @@ export class Result {
     @Column()
     test_id: number;
 
+    @Column({ type: 'varchar', nullable: true })
+    answers: string;
+
     @CreateDateColumn({ type: 'timestamp' })
     created_at: Date;
 

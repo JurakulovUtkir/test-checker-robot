@@ -18,6 +18,9 @@ import { ChooseCategoryScene } from './scenes/user-side/choose-category.scene';
 import { NameScene } from './scenes/user-side/full_name.scene';
 import { TestNameScene } from './scenes/admin-side/test-name.scene';
 import { StatsScene } from './scenes/user-side/stats.scene';
+import { UserMenuScene } from './scenes/user-side/user-menu.scene';
+import { TestResultsScene } from './scenes/user-side/test-results.scene';
+import { CloseTestsScene } from './scenes/admin-side/close-tests.scene';
 
 dotenv.config();
 
@@ -36,6 +39,7 @@ dotenv.config();
         ChooseCategoryScene,
         NameScene,
         StatsScene,
+        TestResultsScene,
         /**
          * admin-site
          */
@@ -46,6 +50,8 @@ dotenv.config();
         TestListScene,
         AddTestScene,
         TestNameScene,
+        UserMenuScene,
+        CloseTestsScene
     ],
 })
 export class BotModule {}

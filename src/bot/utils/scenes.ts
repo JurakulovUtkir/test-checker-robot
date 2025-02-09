@@ -19,4 +19,7 @@ export enum scenes {
     NAME_SCENE = 'NAME_SCENE',
     TEST_NAME = 'TEST_NAME',
     STATS = 'STATS',
+    USER_MENU = 'USER_MENU',
+    TEST_RESULTS = 'TEST_RESULTS',
+    CLOSE_TESTS_SCENE = 'CLOSE_TESTS_SCENE',
 }

@@ -6,7 +6,7 @@ import {
     STATISTICS,
 } from './../../utils/buttons';
 import { Context } from './../../context/context';
-import { Scene, SceneEnter, Hears, InjectBot } from 'nestjs-telegraf';
+import { Scene, SceneEnter, Hears, InjectBot, Command } from 'nestjs-telegraf';
 import { admin_site } from 'src/bot/utils/constants';
 import { admin_menu } from 'src/bot/utils/functions';
 import { scenes } from 'src/bot/utils/scenes';
@@ -43,6 +43,11 @@ export class AdminMenuScene {
         });
 
         await ctx.reply(admin_site, admin_menu());
+    }
+
+    @Command('start')
+    async start(ctx: Context) {
+        await ctx.scene.enter(scenes.ADMIN_MENU);
     }
 
     @Hears(STATISTICS)

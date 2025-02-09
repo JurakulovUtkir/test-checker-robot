@@ -12,7 +12,7 @@ export const are_you_mudir = 'Sizda mudirlik vazifasi ham bormi ?';
 export const ustama_foizlar =
     "831- qaror bo'yicha barcha ustama foizlar yig'indisini kiriting";
 
-export const qaysi_sinf = "Qaysi sinfga dars o'tasiz ?";
+export const qaysi_sinf = 'Qaysi sinfga dars berasiz ?';
 
 /**
  * admin-site

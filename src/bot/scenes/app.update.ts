@@ -13,7 +13,7 @@ import { scenes } from '../utils/scenes';
 @UseInterceptors(BotInterceptor)
 export class AppUpdate {
     constructor(
-        @InjectBot('bot') private readonly bot: Telegraf<Context>,
+        // @InjectBot('bot') private readonly bot: Telegraf<Context>,
         @InjectRepository(User) private readonly repository: Repository<User>,
     ) {}
 
@@ -27,7 +27,7 @@ export class AppUpdate {
             await ctx.scene.enter(scenes.ADMIN_MENU);
         } else {
             if (user.region) {
-                await ctx.scene.enter(scenes.CHOOSE_CATEGORY);
+                await ctx.scene.enter(scenes.USER_MENU);
             } else {
                 await ctx.scene.enter(scenes.STATS);
             }
