@@ -30,7 +30,12 @@ export class TestResultsScene {
             },
             take: 5,
         });
-        console.log(results);
+
+        if (results.length === 0) {
+            await ctx.reply('Sizda natijalar mavjud emas');
+            await ctx.scene.enter(scenes.USER_MENU);
+            return;
+        }
 
         // showing test results with inline buttons to show with full detailed information
 

@@ -31,12 +31,19 @@ export class TestListScene {
     ) {}
     @SceneEnter()
     async enter(ctx: Context) {
-
         const all_tests = await this.tests_repository.find({
             order: {
                 id: 'DESC',
             },
         });
+
+        // for (const test of all_tests) {
+        //     const test_answers = JSON.parse(test.answers);
+        //     await this.tests_repository.update({ id: test.id }, {
+        //         test_count  : test_answers.length,
+        //         open_test_answers_count : test_answers.length
+        //     })
+        // }
 
         ctx.session.tests = all_tests;
         ctx.session.test_page = 0;
@@ -269,36 +276,36 @@ export class TestListScene {
     }
     @On('callback_query')
     async handle_callback_query(ctx: Context) {
-       try {
-         ctx.session.selected_test_id = +ctx.callbackQuery['data'];
-         const test = await this.tests_repository.findOneBy({
-             id: ctx.session.selected_test_id,
-         });
- 
-         ctx.session.selected_test_stats = await this.results_repository.find({
-             where: {
-                 test_id: test.id,
-             },
-             order: {
-                 result: 'DESC',
-                 created_at: 'ASC',
-             },
-         });
- 
-         // const test_answers_count = JSON.parse(test.answers).length
- 
-         await ctx.editMessageText(`
+        try {
+            ctx.session.selected_test_id = +ctx.callbackQuery['data'];
+            const test = await this.tests_repository.findOneBy({
+                id: ctx.session.selected_test_id,
+            });
+
+            ctx.session.selected_test_stats =
+                await this.results_repository.find({
+                    where: {
+                        test_id: test.id,
+                    },
+                    order: {
+                        result: 'DESC',
+                        created_at: 'ASC',
+                    },
+                });
+
+            // const test_answers_count = JSON.parse(test.answers).length
+
+            await ctx.editMessageText(`
  🗒 Test nomi: ${test.name}
  📝 javoblar soni: ${JSON.parse(test.answers).length}
  ‼️  Test kodi: ${test.id}
              `);
-         await ctx.editMessageReplyMarkup(
-             test_functionalities(test).reply_markup,
-         );
-       } catch (error) {
-        console.log(error);
-         ctx.scene.leave()
-        
-       }
+            await ctx.editMessageReplyMarkup(
+                test_functionalities(test).reply_markup,
+            );
+        } catch (error) {
+            console.log(error);
+            ctx.scene.leave();
+        }
     }
 }

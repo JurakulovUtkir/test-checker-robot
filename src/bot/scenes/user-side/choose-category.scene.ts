@@ -165,14 +165,6 @@ export class ChooseCategoryScene {
                 return ctx.scene.reenter();
             }
 
-            // Check if the user sent the correct number of answers
-            if (userTestKeys.length !== test.answers.length) {
-                await ctx.reply(
-                    `Siz yuborgan ID: ${test.id} li testda ${test.answers.length} ta javob bo'lishi kerak, lekin siz ${userTestKeys.length} ta javob yubordiz.`,
-                );
-                return ctx.scene.reenter();
-            }
-
             // Check if the test is active
             if (!test.is_active) {
                 await ctx.reply('Test yopilgan.');
@@ -190,37 +182,42 @@ export class ChooseCategoryScene {
                 return ctx.scene.reenter();
             }
 
+            // Check if the user sent the correct number of answers
+            if (userTestKeys.length !== test.open_test_answers_count) {
+                await ctx.reply(
+                    `Siz yuborgan ID: ${test.id} li testda ${test.open_test_answers_count} ta ochiq javob bo'lishi kerak, lekin siz ${userTestKeys.length} ta javob yubordiz.`,
+                );
+                return ctx.scene.reenter();
+            }
+
             // Evaluate the user's answers and calculate the score
-            const score = await check_test_keys(userTestKeys, test.answers);
+            ctx.session.test_answers = JSON.parse(test.answers);
+            ctx.session.score = 0;
+            ctx.session.checking_test_answer_index = 0;
+            ctx.session.user_test_answers = [];
+            ctx.session.test = test;
+            let is_true = false;
+            ctx.session.user_result = `Test ID: ${test.id} \n`;
+            for (let i = 0; i < test.open_test_answers_count; i++) {
+                ctx.session.checking_test_answer_index++;
 
-            // Save the result to the database
-            await this.results_repository.save({
-                test_id: test.id,
-                user_chat_id: userChatId,
-                result: score,
-                created_at: new Date(),
-                user: ctx.session.user_full_name,
-                answers: userTestKeys,
-            });
+                ctx.session.user_test_answers.push({
+                    id: i + 1,
+                    answer: userTestKeys[i],
+                });
 
-            await this.tests_repository.update(
-                {
-                    id: test.id,
-                },
-                {
-                    checked_count: test.checked_count++,
-                },
-            );
+                if (ctx.session.test_answers[i].answer == userTestKeys[i]) {
+                    ctx.session.score++;
+                    is_true = true;
+                }
 
-            // Respond with the test result
-            await ctx.reply(`
-    📋 Test ID : ${test.id}
-    📜 Test nomi : ${test.name} 
-    🎯 Ball : ${score} ball               
-            `);
+                ctx.session.user_result += `${i + 1}.${userTestKeys[i]}  ${
+                    is_true ? '✅' : '❌'
+                }\n`;
+            }
 
-            await ctx.reply('Successfully saved!');
-            await ctx.scene.enter(scenes.USER_MENU);
+            await ctx.reply(`Ochiq testlariz tekshirib bo'lindi`);
+            await ctx.scene.enter(scenes.CHECK_CLOSE_TEST);
         } catch (error) {
             this.logger.error(`Error in check_test: ${error.message}`);
             await ctx.scene.reenter();
@@ -232,15 +229,4 @@ export function isNumberAsteriskFollowedBy30Chars(text: string): boolean {
     // Regular expression to match a number followed by an asterisk (*) and exactly 30 characters
     const regex = /^\d\*.{30}$/;
     return regex.test(text);
-}
-
-export function check_test_keys(user_keys: string, test_keys): number {
-    let true_keys = 0;
-
-    for (let i = 0; i < test_keys.length; i++) {
-        if (user_keys[i] === test_keys[i]) {
-            true_keys++;
-        }
-    }
-    return true_keys;
 }

@@ -33,7 +33,9 @@ Agar sizda yopiq testla bo'lmasa /done tugmasini bosib testni yaratishiz mumkin,
             name: ctx.session.adding_test_name,
             answers: test_answers,
             is_active: true,
-            owner_chat_id : ctx.chat.id.toString()
+            owner_chat_id : ctx.chat.id.toString(),
+            test_count : ctx.session.test_answers.length,
+            open_test_answers_count : ctx.session.open_test_answers_count
        })
 
         await ctx.replyWithHTML(

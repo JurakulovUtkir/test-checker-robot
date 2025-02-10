@@ -19,10 +19,16 @@ interface SessionData extends Scenes.SceneSession<MySceneSession> {
      */
     adding_test_name: string;
     selected_test_stats: Result[];
-    selected_test_id : number;
+    selected_test_id: number;
     test_page: number;
     tests: Test[];
-    test_answers: TestAnswers[] ;
+    test_answers: TestAnswers[];
+    user_test_answers: TestAnswers[];
+    open_test_answers_count: number;
+    score: number;
+    checking_test_answer_index: number;
+    test: Test;
+    user_result: string;
 }
 
 interface MySceneSession extends Scenes.SceneSessionData {

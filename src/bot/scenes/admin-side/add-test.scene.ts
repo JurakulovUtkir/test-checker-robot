@@ -33,8 +33,9 @@ export class AddTestScene {
     async add_test(ctx: Context) {
         const test_answers = ctx.message['text'];
 
-        if(!ctx.session.test_answers){
+        if (!ctx.session.test_answers) {
             ctx.session.test_answers = [];
+            ctx.session.open_test_answers_count = 0;
         }
 
         // save test_answers to database
@@ -44,12 +45,13 @@ export class AddTestScene {
             test_answers.split('').every((char) => default_keys.includes(char))
         ) {
             // save test_answers to database
-        for(let i=0;i<test_answers.length;i++){
-     ctx.session.test_answers.push({
-        id : i+1,
-        answer : test_answers[i]
-    })
-        }
+            for (let i = 0; i < test_answers.length; i++) {
+                ctx.session.open_test_answers_count++;
+                ctx.session.test_answers.push({
+                    id: i + 1,
+                    answer: test_answers[i],
+                });
+            }
 
             await ctx.scene.enter(scenes.CLOSE_TESTS_SCENE);
         } else {

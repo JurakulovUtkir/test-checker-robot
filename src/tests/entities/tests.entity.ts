@@ -17,6 +17,12 @@ export class Test {
     @Column({ type: 'varchar', length: 100 })
     owner_chat_id: string;
 
+    @Column({ type: 'int',nullable : true })
+    test_count : number;
+
+    @Column({ type: 'int',nullable : true })
+    open_test_answers_count : number;
+
     @Column({ default: true })
     is_active: boolean;
 
