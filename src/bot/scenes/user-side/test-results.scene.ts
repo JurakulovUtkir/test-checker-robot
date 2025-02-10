@@ -66,22 +66,36 @@ Vaqti: ${result.created_at.toLocaleString()}
         const test = await this.test_repository.findOneBy({
             id: result.test_id,
         });
+        ctx.session.test_answers = JSON.parse(test.answers);
+        ctx.session.user_test_answers = JSON.parse(result.answers);
 
         let text = ``;
 
         text += `Test: ${test.name}\n\n`;
 
-        for (let i = 0; i < test.answers.length; i++) {
-            const emoji = test.answers[i] === result.answers[i] ? '✅' : '❌';
-            if (test.answers[i] === result.answers[i]) {
-                text += ` ${i + 1}. ${result.answers[i]} ${emoji}\n`;
+        for (let i = 0; i < ctx.session.test_answers.length; i++) {
+            const emoji =
+                ctx.session.test_answers[i].answer ===
+                ctx.session.user_test_answers[i].answer
+                    ? '✅'
+                    : '❌';
+            if (
+                ctx.session.test_answers[i].answer ===
+                ctx.session.user_test_answers[i].answer
+            ) {
+                text += ` ${i + 1}. ${
+                    ctx.session.user_test_answers[i].answer
+                } ${emoji}\n`;
             } else {
                 text += ` ${i + 1}. ${
-                    result.answers[i]
-                } ${emoji} ${test.answers[i].toUpperCase()}\n`;
+                    ctx.session.user_test_answers[i].answer
+                } ${emoji} ${ctx.session.test_answers[
+                    i
+                ].answer.toLowerCase()}\n`;
             }
         }
 
         await ctx.editMessageText(text);
+        await ctx.scene.enter(scenes.USER_MENU);
     }
 }
