@@ -25,6 +25,23 @@ export class CheckCloseTestsScene {
             await ctx.reply(
                 `Here is your results : \n ${ctx.session.user_result}`,
             );
+
+            // saving test results and test stats update
+            await this.tests_repository.update(
+                { id: ctx.session.test.id },
+                {
+                    checked_count: ctx.session.test.checked_count + 1,
+                },
+            );
+
+            await this.results_repository.save({
+                user_chat_id: ctx.chat.id.toString(),
+                result: ctx.session.score,
+                test_id: ctx.session.test.id,
+                user: ctx.session.user_full_name,
+                answers: JSON.stringify(ctx.session.user_test_answers),
+            });
+
             await ctx.scene.enter(scenes.USER_MENU);
         } else {
             await ctx.reply(
@@ -63,22 +80,6 @@ export class CheckCloseTestsScene {
             ctx.session.user_result += `${
                 ctx.session.checking_test_answer_index + 1
             }.${text}  ${is_true ? '✅' : '❌'}\n`;
-
-            // saving test results and test stats update
-            await this.tests_repository.update(
-                { id: ctx.session.test.id },
-                {
-                    checked_count: ctx.session.test.checked_count + 1,
-                },
-            );
-
-            await this.results_repository.save({
-                user_chat_id: ctx.chat.id.toString(),
-                result: ctx.session.score,
-                test_id: ctx.session.test.id,
-                user: ctx.session.user_full_name,
-                answers: JSON.stringify(ctx.session.user_test_answers),
-            });
 
             ctx.session.checking_test_answer_index++;
             await ctx.scene.reenter();

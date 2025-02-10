@@ -206,9 +206,11 @@ export class ChooseCategoryScene {
                     answer: userTestKeys[i],
                 });
 
-                if (ctx.session.test_answers[i].answer == userTestKeys[i]) {
+                if (ctx.session.test_answers[i].answer === userTestKeys[i]) {
                     ctx.session.score++;
                     is_true = true;
+                } else {
+                    is_true = false;
                 }
 
                 ctx.session.user_result += `${i + 1}.${userTestKeys[i]}  ${
