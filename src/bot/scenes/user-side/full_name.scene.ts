@@ -36,39 +36,44 @@ Agar ismingizni o'zgartrishni istamasangiz, menuga qaytadan kirishni bosing.`,
     // we have to catch names and set to themselves
     @On('text')
     async name(ctx: Context) {
-        const name = ctx.message['text'];
+        try {
+            const name = ctx.message['text'];
 
-        // check if the user sends /start message to the bot and leave the scene to user menu scene
-        if (name == '/start') {
-            await ctx.scene.enter(scenes.USER_MENU);
-            return;
-        }
+            // check if the user sends /start message to the bot and leave the scene to user menu scene
+            if (name == '/start') {
+                await ctx.scene.enter(scenes.USER_MENU);
+                return;
+            }
 
-        ctx.session.user_full_name = name;
+            ctx.session.user_full_name = name;
 
-        // validate name name should have at least 5 characters
-        if (name.length < 5) {
-            await ctx.scene.reenter();
-            await ctx.reply(
-                `Ismizning uzunligi 5ta simvol bo'lsun! Iltimos qaytadan kiriting.`,
+            // validate name name should have at least 5 characters
+            if (name.length < 5) {
+                await ctx.scene.reenter();
+                await ctx.reply(
+                    `Ismizning uzunligi 5ta simvol bo'lsun! Iltimos qaytadan kiriting.`,
+                );
+                return;
+            }
+
+            // set full_name to user
+            await this.user_repository.update(
+                {
+                    chat_id: ctx.chat.id.toString(),
+                },
+                {
+                    full_name: name,
+                },
             );
-            return;
+
+            // change scene to CHOOSE_CATEGORY
+
+            // await ctx.reply(`Xush kelibsiz, ${name}!`);
+
+            await ctx.scene.enter(scenes.USER_MENU);
+        } catch (error) {
+            console.log(error);
+            await ctx.scene.leave();
         }
-
-        // set full_name to user
-        await this.user_repository.update(
-            {
-                chat_id: ctx.chat.id.toString(),
-            },
-            {
-                full_name: name,
-            },
-        );
-
-        // change scene to CHOOSE_CATEGORY
-
-        // await ctx.reply(`Xush kelibsiz, ${name}!`);
-
-        await ctx.scene.enter(scenes.USER_MENU);
     }
 }

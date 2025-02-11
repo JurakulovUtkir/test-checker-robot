@@ -17,38 +17,43 @@ export class CheckCloseTestsScene {
 
     @SceneEnter()
     async enter(ctx: Context) {
-        // if open test has only open test keys
-        if (
-            ctx.session.user_test_answers.length ==
-            JSON.parse(ctx.session.test.answers).length
-        ) {
-            await ctx.reply(
-                `Here is your results : \n ${ctx.session.user_result}`,
-            );
+        try {
+            // if open test has only open test keys
+            if (
+                ctx.session.user_test_answers.length ==
+                JSON.parse(ctx.session.test.answers).length
+            ) {
+                await ctx.reply(
+                    `Here is your results : \n ${ctx.session.user_result}`,
+                );
 
-            // saving test results and test stats update
-            await this.tests_repository.update(
-                { id: ctx.session.test.id },
-                {
-                    checked_count: ctx.session.test.checked_count + 1,
-                },
-            );
+                // saving test results and test stats update
+                await this.tests_repository.update(
+                    { id: ctx.session.test.id },
+                    {
+                        checked_count: ctx.session.test.checked_count + 1,
+                    },
+                );
 
-            await this.results_repository.save({
-                user_chat_id: ctx.chat.id.toString(),
-                result: ctx.session.score,
-                test_id: ctx.session.test.id,
-                user: ctx.session.user_full_name,
-                answers: JSON.stringify(ctx.session.user_test_answers),
-            });
+                await this.results_repository.save({
+                    user_chat_id: ctx.chat.id.toString(),
+                    result: ctx.session.score,
+                    test_id: ctx.session.test.id,
+                    user: ctx.session.user_full_name,
+                    answers: JSON.stringify(ctx.session.user_test_answers),
+                });
 
-            await ctx.scene.enter(scenes.USER_MENU);
-        } else {
-            await ctx.reply(
-                `Iltimos ${
-                    ctx.session.user_test_answers.length + 1
-                } - savol javobini kiriting!`,
-            );
+                await ctx.scene.enter(scenes.USER_MENU);
+            } else {
+                await ctx.reply(
+                    `Iltimos ${
+                        ctx.session.user_test_answers.length + 1
+                    } - savol javobini kiriting!`,
+                );
+            }
+        } catch (error) {
+            console.log(error);
+            await ctx.scene.leave();
         }
     }
 

@@ -6,6 +6,7 @@ import { ChannelsModule } from './channels/channels.module';
 import { TestsModule } from './tests/tests.module';
 import { ResultsModule } from './results/results.module';
 import * as dotenv from 'dotenv';
+import { TaskServiceModule } from './task-service/task-service.module';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ dotenv.config();
         ChannelsModule,
         TestsModule,
         ResultsModule,
+        TaskServiceModule,
     ],
 })
 export class AppModule {}

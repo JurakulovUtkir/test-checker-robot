@@ -222,7 +222,7 @@ export class ChooseCategoryScene {
             await ctx.scene.enter(scenes.CHECK_CLOSE_TEST);
         } catch (error) {
             this.logger.error(`Error in check_test: ${error.message}`);
-            await ctx.scene.reenter();
+            await ctx.scene.leave();
         }
     }
 }

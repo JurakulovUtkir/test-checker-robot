@@ -19,42 +19,47 @@ export class TestResultsScene {
 
     @SceneEnter()
     async enter(ctx: Context) {
-        // showing test results with inline buttons to show with full detailed information
-        const results = await this.result_repository.find({
-            where: {
-                user_chat_id: ctx.chat.id.toString(),
-                answers: Not(IsNull()),
-            },
-            order: {
-                created_at: 'desc',
-            },
-            take: 5,
-        });
-
-        if (results.length === 0) {
-            await ctx.reply('Sizda natijalar mavjud emas');
-            await ctx.scene.enter(scenes.USER_MENU);
-            return;
-        }
-
-        // showing test results with inline buttons to show with full detailed information
-
-        for (const result of results) {
-            const test = await this.test_repository.findOneBy({
-                id: result.test_id,
+        try {
+            // showing test results with inline buttons to show with full detailed information
+            const results = await this.result_repository.find({
+                where: {
+                    user_chat_id: ctx.chat.id.toString(),
+                    answers: Not(IsNull()),
+                },
+                order: {
+                    created_at: 'desc',
+                },
+                take: 5,
             });
-            const text = `
-Test: ${test.name}(${test.answers.length})
-Natijangiz: ${result.result}
-Vaqti: ${result.created_at.toLocaleString()}
-            `;
 
-            await ctx.reply(
-                text,
-                Markup.inlineKeyboard([
-                    Markup.button.callback('ℹ️ details', `${result.id}`),
-                ]),
-            );
+            if (results.length === 0) {
+                await ctx.reply('Sizda natijalar mavjud emas');
+                await ctx.scene.enter(scenes.USER_MENU);
+                return;
+            }
+
+            // showing test results with inline buttons to show with full detailed information
+
+            for (const result of results) {
+                const test = await this.test_repository.findOneBy({
+                    id: result.test_id,
+                });
+                const text = `
+ Test: ${test.name}(ID : ${test.id})
+ Natijangiz: ${result.result}
+ Vaqti: ${result.created_at.toLocaleString()}
+             `;
+
+                await ctx.reply(
+                    text,
+                    Markup.inlineKeyboard([
+                        Markup.button.callback('ℹ️ details', `${result.id}`),
+                    ]),
+                );
+            }
+        } catch (error) {
+            console.log(error);
+            await ctx.scene.leave();
         }
     }
     @On('callback_query')

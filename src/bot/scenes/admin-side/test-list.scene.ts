@@ -13,11 +13,9 @@ import { Test } from 'src/tests/entities/tests.entity';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import * as PDFDocument from 'pdfkit';
-import * as path from 'path';
 import { Workbook } from 'exceljs';
 import * as tmp from 'tmp'; // Temporary files library (optional but recommended for handling files)
 import { User } from 'src/users/entities/user.entity';
-import { TestAnswers } from 'src/bot/utils/interfaces';
 
 @Scene(scenes.TEST_LIST)
 export class TestListScene {
@@ -34,6 +32,9 @@ export class TestListScene {
         const all_tests = await this.tests_repository.find({
             order: {
                 id: 'DESC',
+            },
+            where: {
+                is_deleted: false,
             },
         });
 
@@ -197,9 +198,14 @@ export class TestListScene {
         await ctx.answerCbQuery(
             'You have deleted a test with ID: ' + ctx.session.selected_test_id,
         );
-        await this.tests_repository.delete({
-            id: ctx.session.selected_test_id,
-        });
+        await this.tests_repository.update(
+            {
+                id: ctx.session.selected_test_id,
+            },
+            {
+                is_deleted: true, // it means it's deleted
+            },
+        );
         await ctx.deleteMessage();
         ctx.scene.enter(scenes.TEST_LIST);
     }
