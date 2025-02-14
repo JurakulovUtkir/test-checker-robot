@@ -15,13 +15,16 @@ export class CloseTestsScene {
     @SceneEnter()
     async enter(ctx: Context) {
         // asking admin to add close test
-        await ctx.reply(`
+        await ctx.reply(
+            `
 Agar sizda qolganlari yopiq test bo'lsa ${
                 ctx.session.test_answers.length + 1
             } - testni javobini kiriting
             
 Agar sizda yopiq testla bo'lmasa /done tugmasini bosib testni yaratishiz mumkin,
-            `,remove_keyboard());
+            `,
+            remove_keyboard(),
+        );
     }
 
     @Command('done')
@@ -29,14 +32,14 @@ Agar sizda yopiq testla bo'lmasa /done tugmasini bosib testni yaratishiz mumkin,
         // saving test answers to database
         const test_answers = JSON.stringify(ctx.session.test_answers);
         // check text should be 30 characters and only in default keys
-       const test = await this.tests_repository.save({
+        const test = await this.tests_repository.save({
             name: ctx.session.adding_test_name,
             answers: test_answers,
             is_active: true,
-            owner_chat_id : ctx.chat.id.toString(),
-            test_count : ctx.session.test_answers.length,
-            open_test_answers_count : ctx.session.open_test_answers_count
-       })
+            owner_chat_id: ctx.chat.id.toString(),
+            test_count: ctx.session.test_answers.length,
+            open_test_answers_count: ctx.session.open_test_answers_count,
+        });
 
         await ctx.replyWithHTML(
             `
@@ -61,7 +64,7 @@ P.S : Agar yopiq testlar bo'lsa ularni alohida kiritasiz(botda hammasi batafsil 
 ♻️Test ishlanishga tayyor!!!
             `,
         );
-        await ctx.scene.enter(scenes.ADMIN_MENU)
+        await ctx.scene.enter(scenes.ADMIN_MENU);
     }
 
     @On('text')

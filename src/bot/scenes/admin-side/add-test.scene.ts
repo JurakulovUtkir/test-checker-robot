@@ -33,10 +33,8 @@ export class AddTestScene {
     async add_test(ctx: Context) {
         const test_answers = ctx.message['text'];
 
-        if (!ctx.session.test_answers) {
-            ctx.session.test_answers = [];
-            ctx.session.open_test_answers_count = 0;
-        }
+        ctx.session.test_answers = [];
+        ctx.session.open_test_answers_count = 0;
 
         // save test_answers to database
         const default_keys = ['a', 'b', 'c', 'd', 'e'];
