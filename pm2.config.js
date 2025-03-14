@@ -1,6 +1,6 @@
 module.exports = {
   apps : [{
-    name   : "@oylik-bot",
+    name   : "@bot",
     script : "./dist/main.js"
   }]
 }
