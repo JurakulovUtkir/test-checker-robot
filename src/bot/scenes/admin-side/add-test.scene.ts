@@ -26,6 +26,10 @@ export class AddTestScene {
 
     @Hears([ONLY_CLOSE_TESTS])
     async close_tests(ctx: Context) {
+
+        ctx.session.test_answers = [];
+        ctx.session.open_test_answers_count = 0;
+        
         await ctx.scene.enter(scenes.CLOSE_TESTS_SCENE);
     }
 
