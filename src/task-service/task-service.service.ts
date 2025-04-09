@@ -1,47 +1,62 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectBot } from 'nestjs-telegraf';
 import { Context } from 'src/bot/context/context';
 import { Telegraf } from 'telegraf';
 import * as fs from 'fs';
-import * as dotenv from 'dotenv';
 import { exec } from 'child_process';
+import { promisify } from 'util';
+import * as dotenv from 'dotenv';
+
 dotenv.config();
+const execPromise = promisify(exec);
 
 @Injectable()
 export class TaskServiceService {
     constructor(@InjectBot('bot') private readonly bot: Telegraf<Context>) {}
 
-    // @Cron('1 * * * * *')
-    // handleCron() {
-    //     console.log(
-    //         'Called when the first second of minute ' +
-    //             new Date().toLocaleString(),
-    //     );
-    // }
+    private getBackupCommand(filePath: string): string {
+        const host = process.env.DB_HOST || 'test-bot-postgres'; // Change 'db' to your PostgreSQL service name in Docker
+        const user = process.env.DB_USER || 'test';
+        const db = process.env.DB_NAME || 'test';
 
-    private isProductionBackupDB = (filePath: string): string => {
-        return `docker exec -t test-bot-postgres pg_dump -c -U test -d test > ${filePath}`;
-    };
+        return `PGPASSWORD="${process.env.DB_PASSWORD}" pg_dump -h ${host} -U ${user} -d ${db} -c > ${filePath}`;
+    }
 
     @Cron(CronExpression.EVERY_DAY_AT_5AM)
     async backup_db() {
-        const dir = 'assets/files/backup';
-        const file_name = `backup_salim_db.sql`;
-        const filePath = `${dir}/${file_name}`;
+        const dir = '/app/assets/files/backup';
+        const file_name = `backup_test_db_${
+            new Date().toISOString().split('T')[0]
+        }`;
+        const sqlPath = `${dir}/${file_name}.sql`;
+        const tarPath = `${dir}/${file_name}.tar.gz`;
 
-        fs.mkdirSync(dir, { recursive: true });
+        try {
+            fs.mkdirSync(dir, { recursive: true });
 
-        exec(this.isProductionBackupDB(filePath), async (err) => {
-            if (err) {
-                throw new BadRequestException(err.message);
-            }
-
-            //  TODO: success
-            console.log('Successfully backup ' + filePath);
-            await this.bot.telegram.sendDocument(1411561011, {
-                source: './' + filePath,
+            await execPromise(this.getBackupCommand(sqlPath), {
+                env: { ...process.env }, // Ensure environment variables are available
             });
-        });
+
+            // Create tar.gz archive
+            await execPromise(`tar -czf ${tarPath} -C ${dir} ${file_name}.sql`);
+
+            // Send the tar file
+            await this.bot.telegram.sendDocument(1411561011, {
+                source: tarPath,
+                filename: `${file_name}.tar.gz`,
+            });
+
+            // Clean up files
+            fs.unlinkSync(sqlPath);
+            fs.unlinkSync(tarPath);
+        } catch (error) {
+            console.error('Backup process failed:', error);
+            await this.bot.telegram.sendMessage(
+                1411561011,
+                `Database backup failed: ${error.message}`,
+            );
+        }
     }
 }
